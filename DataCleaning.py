@@ -15,7 +15,6 @@ def one_hot_multi(columns:pd.Series, colsep:str=',') -> pd.DataFrame:
     for val in distinctVal:
         outputdf[val] = valueCol.apply(lambda x: val in x)
     return outputdf
-    
 
 def binary_column(columns: pd.Series) -> pd.Series:
     df = pd.get_dummies(columns)
