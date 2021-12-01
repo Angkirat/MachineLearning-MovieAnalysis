@@ -1,5 +1,6 @@
 import pandas as pd
 import DataCleaning as dc
+from scrape import get_stats
 
 dataCleaning = {
     'SingleValue_onehotEncoding': ['View Rating','Runtime']
@@ -32,10 +33,9 @@ def data_cleaning_operation(inputDF: pd.DataFrame):
     return inputDF
 
 def main():
-    DF = pd.read_excel(
-        'FlixGem.com Dataset - Latest Netflix data with thousands of attributes.xlsx',
-        sheet_name='FlixGem.com dataset'
-    )
+    DF = pd.read_excel('FlixGem.com Dataset - Latest Netflix data with thousands of attributes.xlsx',sheet_name='FlixGem.com dataset')
+    yt_stats = get_stats(DF["TMDb Trailer"][DF["Trailer Site"] == "YouTube"].tolist())
+    print(yt_stats)
     pass
 
 if __name__ == '__main__':
