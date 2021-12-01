@@ -7,7 +7,7 @@ def one_hot_single(column: pd.Series) -> pd.DataFrame:
     oneHot = OneHotEncoder(handle_unknown="ignore")
     col = column.values.reshape((-1, 1))
     encodedCol = oneHot.fit_transform(col)
-    return pd.DataFrame(encodedCol, columns=oneHot.categories_[0])
+    return pd.DataFrame(encodedCol.toarray(), columns=oneHot.categories_[0])
 
 
 def one_hot_multi(columns: pd.Series, colsep: str = ',') -> pd.DataFrame:
