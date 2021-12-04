@@ -23,3 +23,12 @@ def one_hot_multi(columns: pd.Series, colsep: str = ',') -> pd.DataFrame:
 def binary_column(columns: pd.Series) -> pd.Series:
     df = pd.get_dummies(columns)
     return df.iloc[:, 1]
+
+def numeric_column_cleaning(df: pd.DataFrame) -> pd.DataFrame:
+  df['IMDb Score']=df['IMDb Score']/10
+  df['Rotten Tomatoes Score']=df['Rotten Tomatoes Score']/100
+  df['Rotten Tomatoes Score'].fillna(df['IMDb Score'], inplace=True)
+  df['IMDb Score'].fillna(df['Rotten Tomatoes Score'], inplace=True)
+  df['Metacritic Score']=df['Metacritic Score']/100
+  df['Metacritic Score'].fillna(df['IMDb Score'], inplace=True)
+  return df
