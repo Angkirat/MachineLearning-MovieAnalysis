@@ -33,10 +33,10 @@ def data_cleaning_operation(inputDF: pd.DataFrame):
     return inputDF
 
 def main():
-    DF = pd.read_excel('FlixGem.com Dataset - Latest Netflix data with thousands of attributes.xlsx',sheet_name='FlixGem.com dataset')
-    yt_stats = get_stats(DF["TMDb Trailer"][DF["Trailer Site"] == "YouTube"].tolist())
-    print(yt_stats)
-    pass
+	DF = pd.read_excel('FlixGem.com Dataset - Latest Netflix data with thousands of attributes.xlsx',sheet_name='FlixGem.com dataset')
+	yt_stats = get_stats(DF["TMDb Trailer"][DF["Trailer Site"] == "YouTube"].tolist())
+	yt_stats.to_csv('yt_stats.csv')
+	pass
 
 if __name__ == '__main__':
     main()
