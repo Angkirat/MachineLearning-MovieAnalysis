@@ -7,6 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, accuracy_score
 from sklearn.model_selection import train_test_split, cross_val_score
+import pickle
 
 np.random.seed(123)
 CROSS_VAL_CV = 5
@@ -81,5 +82,15 @@ def main(data: pd.DataFrame, target_column_name: str):
     print('=='*20)
     print('Support Vector Machine')
     svc = support_vector(train_data, train_target, test_data, test_target)
-    return [dtree, rmf, lgr, svc]
+    return {
+        'DecisionTree':dtree
+        ,'RandomForest':rmf
+        ,'logisticRegression':lgr
+        ,'SupportVectorMachine':svc
+    }
 
+if __name__ == '__main__':
+    cleanData = pd.read_csv('cleanDF.csv')
+    models = main(cleanData)
+    for model in models.keys():
+        pickle.dump(models[model], f'{model}.sav')

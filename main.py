@@ -4,17 +4,19 @@ from scipy.sparse import data
 import DataCleaning as dc
 # from scrape import get_stats
 import time
+import modeling as model
 
 dataCleaning = {
     'SingleValue_onehotEncoding': ['View Rating','Runtime']
     ,'MultiValue_onehotEncoding': ['Genre', 'Tags', 'Languages', 'Country Availability']
     ,'booleanColumns': ['Series or Movie']
     ,'convertBoolean': ['Awards Received','Awards Nominated For']
-    ,'numericCleaning': ['viewCount','likeCount','dislikeCount','favoriteCount','commentCount']
+    ,'numericCleaning': ['viewCount','likeCount','dislikeCount','favoriteCount','commentCount', 'IMDb Votes']
     ,'columnsToRemove': ['Title','Director','Writer','Actors','Production House','Netflix Link','IMDb Link',
                          'Summary','Image','Poster','trailer_link','Trailer Site','video_id','stats','kind','etag',
-                         'items','pageInfo.totalResults','pageInfo.resultsPerPage']
-    ,'targetColumn': ['Hidden Gem Score','IMDb Score','Rotten Tomatoes Score','Metacritic Score']
+                         'items','pageInfo.totalResults','pageInfo.resultsPerPage','Boxoffice']
+    ,'targetColumn': ['Hidden Gem Score','IMDb Score','Rotten Tomatoes Score','Metacritic Score', 'IMDb Votes']
+    ,'dateColumn': ['Release Date','Netflix Release Date']
 }
 
 def single_onehot_encoding(acutalDF: pd.DataFrame):
@@ -66,7 +68,21 @@ def main():
     complete_DF = complete_DF.drop(complete_DF[complete_DF['viewCount'].isna()].index)
     cleaned_DF = data_cleaning_operation(complete_DF)
     cleaned_DF['FinalScore'] = cleaned_DF[dataCleaning['targetColumn']].mean(axis=1)
+    cleaned_DF['target_column'] = cleaned_DF['FinalScore'] < cleaned_DF['FinalScore'].mean()
+    cleaned_DF.drop('FinalScore', axis=1, inplace=True)
     cleaned_DF.drop(dataCleaning['targetColumn'], axis=1, inplace=True)
+    cleaned_DF.drop(dataCleaning['dateColumn'], axis=1, inplace=True)
+    print(cleaned_DF.shape)
+    cleaned_DF.dropna(how="any", inplace=True)
+    print(cleaned_DF.shape)
+    NumericColumns = dataCleaning['numericCleaning'] + dataCleaning['targetColumn']
+    cleaningColumns = [col for col in cleaned_DF.columns if (col not in NumericColumns) or (col != 'target_column')]
+    print(f'columns to clean are {len(cleaningColumns)}')
+    for col in cleaningColumns:
+        if cleaned_DF[col].sum() == 0:
+            cleaned_DF.drop(col, axis=1, inplace=True)
+    print(cleaned_DF.shape)
+    cleaned_DF.columns = [col.replace(' ', '_') for col in cleaned_DF.columns]
     print("--- %s seconds ---" % (time.time() - start_time))
     cleaned_DF.to_csv('cleanDF.csv', index=False)
     print("--- %s seconds ---" % (time.time() - start_time))
