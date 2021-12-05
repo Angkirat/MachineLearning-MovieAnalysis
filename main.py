@@ -34,16 +34,17 @@ def data_cleaning_operation(inputDF: pd.DataFrame):
     return inputDF
 
 def main():
-    DF = pd.read_excel('FlixGem.com Dataset - Latest Netflix data with thousands of attributes.xlsx',sheet_name='FlixGem.com dataset')
-    yt_stats = pd.read_csv('yt_stats.csv').iloc[:, 1:]
-    complete_DF = DF.merge(yt_stats, left_on='TMDb Trailer', right_on='trailer_link')
-    
-    print(DF.shape)
-    print(yt_stats.shape)
-    print(complete_DF.shape)
+	DF = pd.read_excel('FlixGem.com Dataset - Latest Netflix data with thousands of attributes.xlsx',sheet_name='FlixGem.com dataset')
+	yt_stats = pd.read_csv('yt_stats.csv').iloc[:, 1:]
+	
+	DF = DF.rename(columns={'TMDb Trailer': 'trailer_link'}).drop_duplicates(subset=['trailer_link'])
+	yt_stats = yt_stats.drop_duplicates(subset=['trailer_link'])
 
-
-
+	complete_DF = pd.merge(DF, yt_stats, how="inner", on="trailer_link")
+	
+	print(DF.shape)
+	print(yt_stats.shape)
+	print(complete_DF.shape)
 
 if __name__ == '__main__':
     main()
