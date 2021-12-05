@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import StandardScaler
 import itertools
 
 
@@ -23,6 +24,10 @@ def one_hot_multi(columns: pd.Series, colsep: str = ',') -> pd.DataFrame:
 def binary_column(columns: pd.Series) -> pd.Series:
     df = pd.get_dummies(columns)
     return df.iloc[:, 1]
+
+def standard_scaler(column: pd.Series) -> pd.DataFrame:
+    scaler = StandardScaler()
+    return (pd.DataFrame(scaler.fit_transform(column.to_frame()), columns=[column.name])[column.name])
 
 def numeric_column_cleaning(df: pd.DataFrame) -> pd.DataFrame:
   df['IMDb Score']=df['IMDb Score']/10
