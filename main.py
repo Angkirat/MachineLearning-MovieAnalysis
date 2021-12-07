@@ -2,9 +2,9 @@ import pandas as pd
 from pandas.core.reshape.merge import merge
 from scipy.sparse import data
 import DataCleaning as dc
-# from scrape import get_stats
 import time
 import modeling as model
+from scrape import get_stats
 
 dataCleaning = {
     'SingleValue_onehotEncoding': ['View Rating','Runtime']
@@ -57,10 +57,8 @@ def data_cleaning_operation(inputDF: pd.DataFrame):
     inputDF.drop(dataCleaning['MultiValue_onehotEncoding'], axis=1, inplace=True)
     return inputDF
 
-def main():
+def clean_data(DF:pd.DataFrame, yt_stats:pd.DataFrame):
     start_time = time.time()
-    DF = pd.read_excel('FlixGem.com Dataset - Latest Netflix data with thousands of attributes.xlsx',sheet_name='FlixGem.com dataset')
-    yt_stats = pd.read_csv('yt_stats.csv').iloc[:, 1:]
     DF = DF.rename(columns={'TMDb Trailer': 'trailer_link'}).drop_duplicates(subset=['trailer_link'])
     yt_stats = yt_stats.drop_duplicates(subset=['trailer_link'])
     complete_DF = pd.merge(DF, yt_stats, how="inner", on="trailer_link")
@@ -78,19 +76,24 @@ def main():
     NumericColumns = dataCleaning['numericCleaning'] + dataCleaning['targetColumn']
     cleaningColumns = [col for col in cleaned_DF.columns if (col not in NumericColumns) or (col != 'target_column')]
     print(f'columns to clean are {len(cleaningColumns)}')
+    row_count = cleaned_DF.shape[0]
     for col in cleaningColumns:
-        if cleaned_DF[col].sum() == 0:
+        col_sum = cleaned_DF[col].sum()
+        if col_sum == 0:
+            cleaned_DF.drop(col, axis=1, inplace=True)
+        elif col_sum == row_count:
             cleaned_DF.drop(col, axis=1, inplace=True)
     print(cleaned_DF.shape)
     cleaned_DF.columns = [col.replace(' ', '_') for col in cleaned_DF.columns]
-    print("--- %s seconds ---" % (time.time() - start_time))
-    cleaned_DF.to_csv('cleanDF.csv', index=False)
-    print("--- %s seconds ---" % (time.time() - start_time))
-    return None
-    
+    return cleaned_DF
+
+
     
 
 if __name__ == '__main__':
-    main()
+    DF = pd.read_excel('FlixGem.com Dataset - Latest Netflix data with thousands of attributes.xlsx',sheet_name='FlixGem.com dataset')
+    yt_status = get_stats(DF['TMDb Trailer'])
+    clean_data = clean_data(DF, yt_status)
+    model.main(clean_data, 'target_column')
     pass
 
